@@ -190,3 +190,77 @@ define(function (require,exports,module) {
 })
 
 ```
+
+AMD 与 CMD 区别
+
+AMD:
+
+1. 依赖前置，他是在定义声明的时候先引入
+2. 通过 return 导出
+
+CMD:
+
+1. 就近依赖，需要的时候引入
+2. 通过 module 或 exports 导出
+
+esm 规范出来之前 都是这几种模块化
+
+es6 出来之前，用esm规范的不多
+
+他也是随着babel规范出来之后慢慢用的多了
+
+## ESM
+
+```javascript
+import xxx from 'xxx'
+
+import * as xxx from 'xxx'
+
+export xxx
+
+export default xxx
+```
+
+ESM和commonJs的区别
+
+1. ESM输出的是值的引用，cjs是值的拷贝
+2. ESM是编译时输出的，cjs是运行时加载的
+
+cjs适用于服务端
+
+cjs只有代码运行到 module.exports 的时候才知道这个值是一个什么，所以他是运行时的
+
+esm是一个静态分析的时候定义好了内容
+
+可以搭配babel使用esm
+
+babel 先把 es6 => es5 => 打包后 => 发现打包后使用了 require 函数， 但是require是服务端的 => browserify => 浏览器可以使用的
+
+## UMD
+
+universal module definition
+
+让JS可以再所有环境下使用
+
+技能够满足commonJs又能够满足 AMD CMD 等等
+
+```javascript
+//  他的内部会进行各种判断
+(function (root, factory) {
+  if(typeof module === 'object' && typeof module.exports === 'object') {
+    // commonJs规范 nodeJs环境
+    module.exports = factory();
+  } else if (typeof define === 'function' && define.amd) {
+    // AMD 规范，如 require.js
+    define(factory)
+  } else if (typeof define === 'function' && define.cmd) {
+    // CMD 规范，如 sea.js
+    define(function (require,exports, module) {
+      module.exports = factory()
+    })
+  } else {
+    // 没有模块坏经，挂在全局
+    root.umdModule = factory();
+  }
+})()
+```
